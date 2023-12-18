@@ -1,32 +1,36 @@
-
 import { useState } from 'react'
-import { Box, Button, TextField } from '@mui/material';
+import { Box, Button, Container, TextField } from '@mui/material';
 import { useFormik } from 'formik'
 import * as yup from 'yup'
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom'
+
 
 function Signup({ setUser }) {
     const [signup, setSignup] = useState(true)
     const history = useHistory()
 
-
     const signupSchema = yup.object().shape({
-        username: yup.string().min(5, 'Too Short!').max(15, 'Too Long!').required('Required!'),
+        username: yup.string().min(5, 'Username too Short!').max(15, 'Username too Long!'),
         email: yup.string().email('Invalid email'),
-        password: yup.string().min(5, 'Too Short!').max(15, 'Too Long!').required('Required!')
+        password: yup.string().min(5, 'Password too Short!').max(15, 'Password too Long!'),
+        // passwordConfirmation: yup.string().oneOf([yup.ref('password')], 'Passwords must match')
+    })
+    const loginSchema = yup.object().shape({
+        username: yup.string().required('username required'),
+        password: yup.string().required('password required')
     })
 
     const formik = useFormik({
         initialValues: {
             username: '',
             email: '',
-            password: ''
+            password: '',
+            // passwordConfirmation: ''
         },
-        validationSchema: signupSchema,
+        validationSchema: signup ? signupSchema : loginSchema,
         onSubmit: (values) => {
-            console.log(values)
-            // const endpoint = signup ? '/users' : '/login'
-            fetch('/api/v1/users', {
+            const endpoint = signup ? '/users' : '/login'
+            fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     "Content-Type": 'application/json'
@@ -36,7 +40,7 @@ function Signup({ setUser }) {
                 if (resp.ok) {
                     resp.json().then(({ user }) => {
                         setUser(user)
-                        history.push('/games')
+                        // history.push('/')
                     })
                 } else { 
                     
@@ -46,46 +50,68 @@ function Signup({ setUser }) {
         }
     })
 
-    
-
-    // function toggleSignup() {
-    //     setSignup((currentSignup) => !currentSignup)
-    // }
+    function toggleSignup() {
+        setSignup((currentSignup) => !currentSignup)
+    }
 
     return (
-        <Box>
-            {/* {formik.errors}
-            <Button onClick={toggleSignup}>{signup ? 'Login instead!' : 'Register for an account'}</Button> */}
+        <Container maxWidth='sm'>
+            {/* { Object.keys(formik.errors).map((key) => <li>{formik.errors[key]}</li>) } */}
+            <Button onClick={toggleSignup}>{signup ? 'Login instead!' : 'Register for an account'}</Button>
             <form onSubmit={formik.handleSubmit}>
-                <TextField 
-                    id="username" 
-                    label="Username" 
-                    variant="outlined" 
-                    required
-                    value={formik.values.username}
-                    onChange={formik.handleChange}
-                />
-            
-                {signup && <TextField 
-                    id="email"
-                    label="email"
-                    variant="outlined" 
-                    required
-                    value={formik.values.email}
-                    onChange={formik.handleChange}
-                />}
-                <TextField 
-                    id="password"
-                    label="password"
-                    type="password"
-                    variant="outlined" 
-                    required
-                    value={formik.values.password}
-                    onChange={formik.handleChange}
-                />
+              
+                    <TextField 
+                        id="username" 
+                        label="Username" 
+                        variant="outlined" 
+                        error={!!formik.errors.username}
+                        helperText={formik.errors.username}
+                        required
+                        value={formik.values.username}
+                        onChange={formik.handleChange}
+                    />
+               
+                <Box>
+                    {signup && <TextField 
+                        id="email"
+                        label="email"
+                        variant="outlined" 
+                        error={!!formik.errors.email}
+                        helperText={formik.errors.email}
+                        required
+                        value={formik.values.email}
+                        onChange={formik.handleChange}
+                    />}
+                </Box>
+                <Box>
+                    <TextField 
+                        id="password"
+                        label="password"
+                        type="password"
+                        variant="outlined" 
+                        error={!!formik.errors.password}
+                        helperText={formik.errors.password}
+                        required
+                        value={formik.values.password}
+                        onChange={formik.handleChange}
+                    />
+                </Box>
+                {/* <Box>
+                    {signup && <TextField 
+                        id="passwordConfirmation"
+                        label="passwordConfirmation"
+                        type="password"
+                        variant="outlined" 
+                        error={!!formik.errors.passwordConfirmation}
+                        helperText={formik.errors.passwordConfirmation}
+                        required
+                        value={formik.values.passwordConfirmation}
+                        onChange={formik.handleChange}
+                    />}
+                </Box> */}
                 <Button variant="contained" type="submit">Submit</Button>
             </form>
-        </Box>
+        </Container>
     )
 }
 

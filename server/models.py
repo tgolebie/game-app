@@ -36,7 +36,7 @@ class User(db.Model, SerializerMixin):
 class Game(db.Model, SerializerMixin):
     __tablename__ = 'games'
 
-    serialize_rules = ('-rentals.game')
+    serialize_rules = ('id', 'title', 'rating', 'price', 'image', 'rentals')
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
@@ -62,9 +62,11 @@ class Rental(db.Model, SerializerMixin):
     serialize_rules = ('-user.rentals', '-game.rentals')
 
     id = db.Column(db.Integer, primary_key=True)
-    rented_at = db.Column(db.DateTime)
-    returned_at = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     game_id = db.Column(db.Integer, db.ForeignKey('games.id'))
     game = db.relationship('Game', back_populates = 'rentals')
     user = db.relationship("User", back_populates = 'rentals')
+
+    
+    
+    

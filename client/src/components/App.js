@@ -14,58 +14,55 @@ import Signup from "./Signup";
 
 function App() {
   const [user, setUser] = useState(null)
+  const [rentedGames, setRentedGames] = useState([])
 
-  // useEffect(() => {
-  //   fetch('/authorized')
-  //   .then((resp) => {
-  //     if (resp.ok) {
-  //       resp.json().then((user) => setUser(user))
-  //     } else {
-  //       // handle what should happen if not logged in
-  //       console.log('error')
-  //     }
-  //   })
-  // }, [])
+  useEffect(() => {
+    fetch('/authorized')
+    .then((resp) => {
+      if (resp.ok) {
+        resp.json().then((user) => setUser(user))
+      } else {
+        // handle what should happen if not logged in
+        console.log('error')
+      }
+    })
+  }, [])
 
-  // function handleLogout() {
-  //   fetch('/logout', {
-  //     method: 'DELETE'
-  //   }).then((resp) => {
-  //     if (resp.ok) {
-  //       //  handle logout on frontend
-  //       setUser(null)
-  //       // naigate to route
-  //     }
-  //   })
-  // }
+  function handleLogout() {
+    fetch('/logout', {
+      method: 'DELETE'
+    }).then((resp) => {
+      if (resp.ok) {
+        //  handle logout on frontend
+        setUser(null)
+        // naigate to route
+      }
+    })
+  }
 
-  // if (!user) {
-  //   return <Signup setUser={setUser} />
-  // }
+  if (!user) {
+    return <Signup setUser={setUser} />
+  }
  
   
   return (
     <div className='mainpage'>
       <Router>
         <Navbar />
-        <Switch>
-          
-         {/* <Signup setUser={setUser} /> */}
-         
-          {/* <Route path='/' component={Home} /> */}
-          <Route path='/games' component={GameCard} />
+        <Switch> 
+          <Route exact path='/' component={Home} />
+          <Route path='/games' render={() => <GameCard userId={user.id} />} />
           <Route path='/addgame' component={AddGameForm} />
-          <Route path='/rental' component={Rental} />
+          <Route path='/rentals' render={() => <Rental setRentedGames={setRentedGames} />} />
           <Route path='/users' component={Signup} />
-          
-          {/* <Route patn='/rentals/:id' componenet={RentalDetails} /> */}
-          {/* <Button variant="contained" onClick={handleLogout}>Logout</Button> */}
         </Switch>
       </Router>
       
 
      
-      {/* <Button variant="contained" onClick={handleLogout}>Logout</Button> */}
+      <Button className="logout-button" variant="contained" onClick={handleLogout}>
+  Logout
+</Button>
   </div>
   )
 }

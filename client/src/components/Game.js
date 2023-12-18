@@ -5,7 +5,7 @@
 
 
 
-function Game({id, image, title, rating, price, onDelete, onEdit, onRent}){
+function Game({id, image, title, rating, price, onDelete, onEdit, onRent, onReturn}){
 
     const handleDelete = () => {
         onDelete(id)
@@ -20,6 +20,10 @@ function Game({id, image, title, rating, price, onDelete, onEdit, onRent}){
         onRent(id)
     }
 
+    const handleReturn = () => {
+        onReturn(id);
+    };
+
   
 
     return (
@@ -31,9 +35,16 @@ function Game({id, image, title, rating, price, onDelete, onEdit, onRent}){
                 <p>Rating : {rating}</p>
                 <p>Price : {price}</p>
             </div>
-            <button onClick={handleRent}>Rent</button>
-            <button onClick={handleDelete}>Delete</button>
-            <button onClick={handleEdit}>Edit</button>
+            {onReturn ? (
+                <button onClick={handleReturn}>Return</button>
+            ) : (
+                <>
+                    <button onClick={handleRent}>Rent</button>
+                    <button onClick={handleDelete}>Delete</button>
+                    <button onClick={handleEdit}>Edit</button>
+                </>
+            )}
+            
             
         </div>
     )

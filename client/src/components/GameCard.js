@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import Game from "./Game";
 import EditGameForm from './EditGameForm'
 import { useHistory } from 'react-router-dom';
+import Rental from './Rental'
 
-function GameCard() {
+function GameCard({userId}) {
   const [games, setGames] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredGames, setFilteredGames] = useState([]);
@@ -112,15 +113,17 @@ function GameCard() {
 
   
   const handleRentGame = (gameId) => {
-   
-  
-    fetch('/rentals', {
-      method: 'POST',
+    
+    
+    fetch("/rentals", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         game_id: gameId,
+        user_id: userId,
+        
       }),
     })
       .then((resp) => {
@@ -131,22 +134,11 @@ function GameCard() {
         }
       })
       .then((rentalData) => {
-        setRentedGames((prevRentedGames) => [
-          ...prevRentedGames,
-          {
-            id: rentalData.gameObj.id,
-            image: rentalData.gameObj.image,
-            title: rentalData.gameObj.title,
-            rating: rentalData.gameObj.rating,
-            price: rentalData.gameObj.price,
-          },
-        ]);
-  
-        // Navigate to the Rental route
-        history.push('/rentals');
+        setRentedGames([...rentedGames, rentalData.gameObj]);
+        history.push("/rentals");
       })
       .catch((error) => {
-        console.error('Error renting game:', error.message);
+        console.error("Error renting game:", error.message);
       });
   };
 
@@ -163,6 +155,7 @@ function GameCard() {
       onDelete={handleDeleteGame}
       onEdit={handleEditButtonClick}
       setGames={setGames}
+      
     />
   ));
 

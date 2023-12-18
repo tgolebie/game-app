@@ -11,24 +11,60 @@ from config import app, db, api
 from flask_cors import CORS
 # Add your model imports
 from models import User, Game, Rental
+import secrets
+
+from flask import jsonify
+
+
+CORS(app)
 
 class Rentals(Resource):
-    def post(self):
+   
+    def get(self):
+
         try:
-            data = request.get_json(force=True)
-            new_rental = Rental(
-                game_id=data['game_id'],  
-                # user_id=data['user_id'], 
-               
-            )
-            db.session.add(new_rental)
-            db.session.commit()
-            return make_response(new_rental.to_dict(), 201)
+            user_id = session.get('user_id')  #
+            if user_id is None:
+                return make_response({'error': 'User not authenticated'}, 401)
+
+            rentals = Rental.query.filter_by(user_id=user_id).all()
+
+            rentals_data = [rental.to_dict() for rental in rentals]
+            return make_response(rentals_data, 200)
         except Exception as e:
-            print(f"Error while processing POST request for rentals: {str(e)}")
+            print(f"Error while processing GET request for rentals: {str(e)}")
             import traceback
-            traceback.print_exc()  
+            traceback.print_exc()
             return make_response({'error': 'internal server error'}, 500)
+    def post(self):
+        
+        data = request.get_json(force=True)
+        new_rental = Rental(
+            game_id=data['game_id'],  
+            user_id=data['user_id'],
+          
+               
+        )
+        db.session.add(new_rental)
+        db.session.commit()
+        return make_response(new_rental.to_dict(), 201)
+    
+    def delete(self, id):
+        try:
+            rental = Rental.query.get(id)
+            if not rental:
+                return make_response({'error': 'Rental not found'}, 404)
+
+            db.session.delete(rental)
+            db.session.commit()
+
+            return make_response('', 204)  
+        except Exception as e:
+            print(f"Error while deleting rental: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return make_response({'error': 'internal server error'}, 500)
+    
 
 api.add_resource(Rentals, '/api/v1/rentals')
 
@@ -43,32 +79,32 @@ class Users(Resource):
 
 api.add_resource(Users, '/api/v1/users')  
 
-# @app.route('/api/v1/authorized')
-# def authorized():
-#     try:
-#         user = User.query.filter_by(id=session.get('user_id')).first()
-#         return make_response(user.to_dict(), 200)
-#     except:
-#         return make_response({ "error": "User not found"}, 404)
+@app.route('/api/v1/authorized')
+def authorized():
+    try:
+        user = User.query.filter_by(id=session.get('user_id')).first()
+        return make_response(user.to_dict(), 200)
+    except:
+        return make_response({ "error": "User not found"}, 404)
 
-# @app.route('/api/v1/logout', methods=['DELETE'])
-# def logout():
-#     session['user_id'] = None 
-#     return make_response('', 204)
+@app.route('/api/v1/logout', methods=['DELETE'])
+def logout():
+    session['user_id'] = None 
+    return make_response('', 204)
 
-# @app.route('/api/v1/login', methods=['POST'])
-# def login():
-#     data = request.get_json()
-#     try:
-#         user = User.query.filter_by(username=data['username']).first()
-#         # import ipdb; ipdb.set_trace()
-#         if user.authenticate(data['password']):
-#             session['user_id'] = user.id
-#             return make_response({'user': user.to_dict()}, 200)
-#         else:
-#             return make_response({'error': 'incorrect password'}, 401)
-#     except:
-#         return make_response({'error': 'username incorrect'}, 401)
+@app.route('/api/v1/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    try:
+        user = User.query.filter_by(username=data['username']).first()
+       
+        if user.authenticate(data['password']):
+            session['user_id'] = user.id
+            return make_response({'user': user.to_dict()}, 200)
+        else:
+            return make_response({'error': 'incorrect password'}, 401)
+    except:
+        return make_response({'error': 'username incorrect'}, 401)
     
 
 
@@ -149,6 +185,10 @@ class GameUpdate(Resource):
             return make_response({'error': 'internal server error'}, 500)
 
 api.add_resource(GameUpdate, '/games/<id>')
+
+
+app.secret_key = secrets.token_bytes(32)
+CORS(app, origins='http://localhost:3000')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

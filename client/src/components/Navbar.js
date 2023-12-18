@@ -20,9 +20,6 @@ function Navbar(){
                 <p>
                     <Link to='/users'>Signup</Link>
                 </p>
-                <p>
-                    <Link to=''>Login</Link>
-                </p>
             </ul>
         </nav>
     )
