@@ -27,6 +27,7 @@ class Rentals(Resource):
             if user_id is None:
                 return make_response({'error': 'User not authenticated'}, 401)
 
+
             rentals = Rental.query.filter_by(user_id=user_id).all()
 
             rentals_data = [rental.to_dict() for rental in rentals]
@@ -58,7 +59,7 @@ class Rentals(Resource):
             db.session.delete(rental)
             db.session.commit()
 
-            return make_response('', 204)  
+            return make_response('', 204)  # 204 indicates success with no content
         except Exception as e:
             print(f"Error while deleting rental: {str(e)}")
             import traceback

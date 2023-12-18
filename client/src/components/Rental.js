@@ -26,7 +26,7 @@ function Rental({ setRentedGames }) {
     }, [setRentedGames]);
 
     const handleReturnGame = (gameId) => {
-     
+      // Send a DELETE request to the server to indicate that the game has been returned
       fetch(`/rentals/${gameId}`, {
           method: "DELETE",
       })
