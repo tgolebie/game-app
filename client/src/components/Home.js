@@ -7,7 +7,7 @@ function Home() {
     return (
         <Card className='home-card'>
             <CardContent>
-                <h1>Welcome to Game Renting Site</h1>
+                <h1>Welcome to CtrlRental Hub</h1>
                 <p>
                     Explore our collection of exciting games available for rent. Whether you're into action, adventure, or strategy, we have something for everyone.
                 </p>
